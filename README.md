@@ -1,71 +1,93 @@
-# opencodetime README
+# OpenCodeTime
 
-This is the README for your extension "opencodetime". After writing up a brief description, we recommend including the following sections.
+[![Version](https://img.shields.io/visual-studio-marketplace/v/joanlopez22.opencodetime.svg)](https://marketplace.visualstudio.com/items?itemName=joanlopez22.opencodetime)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/joanlopez22.opencodetime.svg)](https://marketplace.visualstudio.com/items?itemName=joanlopez22.opencodetime)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/joanlopez22.opencodetime.svg)](https://marketplace.visualstudio.com/items?itemName=joanlopez22.opencodetime)
+[![License](https://img.shields.io/github/license/joanlopez22/opencodetime.svg)](https://github.com/joanlopez22/opencodetime/blob/main/LICENSE)
 
-## Features
+OpenCodeTime es una extensión gratuita y open source para Visual Studio Code que realiza un seguimiento del tiempo que dedicas a programar, ofreciendo un dashboard local con estadísticas detalladas.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+![Dashboard Preview](resources/screenshots/dashboard.png)
 
-For example if there is an image subfolder under your extension project workspace:
+## Características
 
-\!\[feature X\]\(images/feature-x.png\)
+- ✅ **Seguimiento automático**: Registra automáticamente el tiempo que pasas programando
+- 📊 **Dashboard interactivo**: Visualiza tus estadísticas de codificación
+- 🔍 **Desglose por lenguaje**: Analiza qué lenguajes utilizas más
+- 📅 **Estadísticas diarias**: Ve tu progreso día a día
+- 🔄 **Detección de inactividad**: Pausa automáticamente cuando dejas de codificar
+- 💾 **Datos locales**: Toda tu información se almacena localmente para máxima privacidad
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Uso
 
-## Requirements
+La extensión comienza a registrar automáticamente tu tiempo de codificación cuando empiezas a trabajar en Visual Studio Code. Puedes ver tu tiempo de codificación actual en la barra de estado.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Comandos
 
-## Extension Settings
+- **OpenCodeTime: Mostrar Dashboard**: Abre el dashboard con todas tus estadísticas
+- **OpenCodeTime: Iniciar/Detener Seguimiento**: Inicia o detiene manualmente el seguimiento
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Configuración
 
-For example:
+- **Tiempo de inactividad**: Configura cuánto tiempo de inactividad debe pasar antes de que se detenga automáticamente el seguimiento (por defecto: 5 minutos)
 
-This extension contributes the following settings:
+```json
+"opencodetime.inactivityThreshold": 300
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Funcionamiento interno
 
-## Known Issues
+OpenCodeTime está desarrollado utilizando las siguientes tecnologías:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- **TypeScript**: El lenguaje principal para la implementación de la extensión
+- **VS Code API**: Para la integración con Visual Studio Code
+- **Chart.js**: Para la visualización de gráficos en el dashboard
+- **Sistema de archivos local**: Para almacenar los datos de tiempo (en formato JSON)
 
-## Release Notes
+La extensión registra sesiones de codificación con la siguiente estructura:
 
-Users appreciate release notes as you update your extension.
+```typescript
+interface CodingSession {
+  startTime: number; // Timestamp de inicio
+  endTime: number;   // Timestamp de fin
+  language: string;  // Lenguaje del editor activo
+  project: string;   // Nombre del proyecto
+  duration: number;  // Duración en milisegundos
+}
+```
 
-### 1.0.0
+Los datos se almacenan por día en archivos JSON en el directorio de almacenamiento global de la extensión:
 
-Initial release of ...
+```typescript
+interface DailyCodingStats {
+  date: string;                        // Fecha en formato YYYY-MM-DD
+  totalDuration: number;               // Duración total del día
+  sessions: CodingSession[];           // Sesiones individuales
+  languageBreakdown: Record<string, number>; // Desglose por lenguaje
+}
+```
 
-### 1.0.1
+## Contribuir
 
-Fixed issue #.
+Este proyecto es open source y las contribuciones son bienvenidas. Puedes contribuir de las siguientes maneras:
 
-### 1.1.0
+1. Reportando bugs o solicitando funcionalidades a través de issues
+2. Enviando pull requests con correcciones o nuevas características
+3. Mejorando la documentación
+4. Compartiendo la extensión con otros desarrolladores
 
-Added features X, Y, and Z.
+## Roadmap
 
----
+- [ ] Sincronización con la nube (opcional)
+- [ ] Más visualizaciones y gráficos
+- [ ] Exportación de datos en diferentes formatos
+- [ ] Metas de productividad y notificaciones
+- [ ] Soporte para equipos
 
-## Following extension guidelines
+## Créditos
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Desarrollado por [Joan Lopez Ramirez](https://github.com/joanlopez22)
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+## Licencia
 
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE)

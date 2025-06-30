@@ -1,9 +1,12 @@
-# Change Log
+# Registro de cambios para OpenCodeTime
 
-All notable changes to the "opencodetime" extension will be documented in this file.
+Todos los cambios notables en la extensión "OpenCodeTime" serán documentados en este archivo.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.0.1] - 2023-06-30
 
-## [Unreleased]
-
-- Initial release
+### Agregado
+- Funcionalidad básica de seguimiento de tiempo de codificación
+- Dashboard local con gráficos de tiempo
+- Estadísticas por lenguaje de programación
+- Detección automática de inactividad
+- Persistencia de datos local
