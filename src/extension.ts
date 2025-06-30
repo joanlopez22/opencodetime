@@ -196,6 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
 						padding: 0 20px;
 						color: var(--vscode-foreground);
 						background-color: var(--vscode-editor-background);
+						line-height: 1.5;
 					}
 					.container {
 						max-width: 1000px;
@@ -204,47 +205,129 @@ export function activate(context: vscode.ExtensionContext) {
 					.header {
 						text-align: center;
 						margin-bottom: 2rem;
+						padding: 1.5rem;
+						border-bottom: 1px solid var(--vscode-widget-shadow);
+					}
+					.header h1 {
+						margin: 0;
+						font-size: 2.2rem;
+						color: var(--vscode-textLink-foreground);
+					}
+					.header p {
+						margin: 0.5rem 0 0;
+						opacity: 0.8;
 					}
 					.card {
 						background-color: var(--vscode-editor-inactiveSelectionBackground);
-						border-radius: 4px;
-						padding: 1rem;
-						margin-bottom: 1rem;
-						box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+						border-radius: 8px;
+						padding: 1.5rem;
+						margin-bottom: 1.5rem;
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+						transition: transform 0.2s ease, box-shadow 0.2s ease;
+					}
+					.card:hover {
+						transform: translateY(-2px);
+						box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 					}
 					.stats-grid {
 						display: grid;
-						grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-						gap: 1rem;
+						grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+						gap: 1.2rem;
+						margin-bottom: 2rem;
 					}
 					.chart-container {
-						height: 300px;
+						height: 320px;
 						margin-bottom: 2rem;
+						position: relative;
 					}
 					h2 {
 						color: var(--vscode-editor-foreground);
+						margin-top: 0;
+						margin-bottom: 1.2rem;
+						font-size: 1.3rem;
+						border-bottom: 1px solid var(--vscode-widget-shadow);
+						padding-bottom: 0.5rem;
 					}
 					.stat-value {
-						font-size: 2rem;
+						font-size: 2.2rem;
 						font-weight: bold;
 						color: var(--vscode-textLink-foreground);
+						margin: 0.5rem 0;
 					}
 					.stat-label {
 						font-size: 0.9rem;
 						color: var(--vscode-descriptionForeground);
+						text-transform: uppercase;
+						letter-spacing: 0.5px;
+						font-weight: 500;
+					}
+					.stat-icon {
+						float: right;
+						font-size: 1.5rem;
+						opacity: 0.7;
+					}
+					.stat-trend {
+						font-size: 0.85rem;
+						color: var(--vscode-descriptionForeground);
+						margin-top: 0.5rem;
 					}
 					table {
 						width: 100%;
 						border-collapse: collapse;
+						font-size: 0.95rem;
+					}
+					thead {
+						border-bottom: 2px solid var(--vscode-widget-shadow);
 					}
 					th, td {
-						padding: 8px;
+						padding: 12px 8px;
 						text-align: left;
+					}
+					tbody tr {
 						border-bottom: 1px solid var(--vscode-widget-shadow);
 					}
+					tbody tr:hover {
+						background-color: var(--vscode-list-hoverBackground);
+					}
 					th {
-						background-color: var(--vscode-editor-selectionBackground);
+						font-weight: 600;
 						color: var(--vscode-editor-foreground);
+					}
+					.language-badge {
+						display: inline-block;
+						padding: 3px 8px;
+						border-radius: 12px;
+						font-size: 0.85rem;
+						background-color: var(--vscode-editor-selectionBackground);
+					}
+					.footer {
+						text-align: center;
+						padding: 1rem;
+						margin-top: 2rem;
+						font-size: 0.9rem;
+						color: var(--vscode-descriptionForeground);
+						border-top: 1px solid var(--vscode-widget-shadow);
+					}
+					.footer a {
+						color: var(--vscode-textLink-foreground);
+						text-decoration: none;
+					}
+					.footer a:hover {
+						text-decoration: underline;
+					}
+					.chart-tabs {
+						display: flex;
+						margin-bottom: 1rem;
+					}
+					.chart-tab {
+						padding: 0.5rem 1rem;
+						cursor: pointer;
+						border-bottom: 2px solid transparent;
+						margin-right: 1rem;
+					}
+					.chart-tab.active {
+						border-bottom: 2px solid var(--vscode-textLink-foreground);
+						color: var(--vscode-textLink-foreground);
 					}
 				</style>
 				<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -258,20 +341,28 @@ export function activate(context: vscode.ExtensionContext) {
 					
 					<div class="stats-grid">
 						<div class="card">
-							<div class="stat-label">Tiempo total de codificación</div>
+							<div class="stat-icon">⏱️</div>
+							<div class="stat-label">Tiempo total</div>
 							<div class="stat-value" id="total-time">--:--:--</div>
+							<div class="stat-trend">Toda la historia</div>
 						</div>
 						<div class="card">
+							<div class="stat-icon">📅</div>
 							<div class="stat-label">Tiempo hoy</div>
 							<div class="stat-value" id="today-time">--:--:--</div>
+							<div class="stat-trend" id="today-date">Hoy</div>
 						</div>
 						<div class="card">
+							<div class="stat-icon">📊</div>
 							<div class="stat-label">Promedio diario</div>
 							<div class="stat-value" id="avg-time">--:--:--</div>
+							<div class="stat-trend" id="days-tracked">0 días registrados</div>
 						</div>
 						<div class="card">
+							<div class="stat-icon">💻</div>
 							<div class="stat-label">Lenguaje más usado</div>
 							<div class="stat-value" id="top-lang">--</div>
+							<div class="stat-trend" id="top-lang-time">0 horas</div>
 						</div>
 					</div>
 					
@@ -301,6 +392,10 @@ export function activate(context: vscode.ExtensionContext) {
 							</tbody>
 						</table>
 					</div>
+
+					<div class="footer">
+						<p>OpenCodeTime &copy; 2023 | Desarrollado por <a href="https://github.com/joanlopez22" target="_blank">Joan Lopez Ramirez</a></p>
+					</div>
 				</div>
 				
 				<script>
@@ -325,6 +420,17 @@ export function activate(context: vscode.ExtensionContext) {
 						const hours = Math.floor(ms / (1000 * 60 * 60));
 						
 						return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')}\`;
+					}
+
+					// Formatear tiempo en horas con un decimal
+					function formatHours(ms) {
+						return (ms / (1000 * 60 * 60)).toFixed(1);
+					}
+					
+					// Formatear fecha en formato legible
+					function formatDate(dateString) {
+						const options = { day: 'numeric', month: 'short' };
+						return new Date(dateString).toLocaleDateString('es-ES', options);
 					}
 					
 					// Renderizar el dashboard con los datos
@@ -375,10 +481,13 @@ export function activate(context: vscode.ExtensionContext) {
 						document.getElementById('today-time').textContent = formatTime(todayTime);
 						document.getElementById('avg-time').textContent = formatTime(avgTime);
 						document.getElementById('top-lang').textContent = topLang;
+						document.getElementById('days-tracked').textContent = \`\${stats.length} días registrados\`;
+						document.getElementById('today-date').textContent = formatDate(today);
+						document.getElementById('top-lang-time').textContent = \`\${formatHours(topTime)} horas\`;
 						
 						// Preparar datos para gráficos
 						const sortedDays = [...stats].sort((a, b) => new Date(a.date) - new Date(b.date));
-						const dates = sortedDays.map(day => day.date);
+						const dates = sortedDays.map(day => formatDate(day.date));
 						const durations = sortedDays.map(day => day.totalDuration / (1000 * 60 * 60)); // Convertir a horas
 						
 						// Gráfico de tiempo por día
@@ -392,13 +501,32 @@ export function activate(context: vscode.ExtensionContext) {
 									data: durations,
 									backgroundColor: 'rgba(75, 192, 192, 0.6)',
 									borderColor: 'rgba(75, 192, 192, 1)',
-									borderWidth: 1
+									borderWidth: 1,
+									borderRadius: 4,
+									maxBarThickness: 50
 								}]
 							},
 							options: {
 								responsive: true,
 								maintainAspectRatio: false,
+								plugins: {
+									legend: {
+										display: false
+									},
+									tooltip: {
+										callbacks: {
+											label: function(context) {
+												return \`\${context.parsed.y.toFixed(2)} horas\`;
+											}
+										}
+									}
+								},
 								scales: {
+									x: {
+										grid: {
+											display: false
+										}
+									},
 									y: {
 										beginAtZero: true,
 										title: {
@@ -414,31 +542,56 @@ export function activate(context: vscode.ExtensionContext) {
 						const langLabels = Object.keys(languageStats);
 						const langData = Object.values(languageStats).map(time => time / (1000 * 60 * 60)); // Convertir a horas
 						
+						const langColors = [
+							'rgba(255, 99, 132, 0.7)',
+							'rgba(54, 162, 235, 0.7)',
+							'rgba(255, 206, 86, 0.7)',
+							'rgba(75, 192, 192, 0.7)',
+							'rgba(153, 102, 255, 0.7)',
+							'rgba(255, 159, 64, 0.7)',
+							'rgba(255, 99, 132, 0.7)',
+							'rgba(54, 162, 235, 0.7)',
+							'rgba(255, 206, 86, 0.7)',
+							'rgba(75, 192, 192, 0.7)'
+						];
+						
 						const langCtx = document.getElementById('lang-chart').getContext('2d');
 						new Chart(langCtx, {
-							type: 'pie',
+							type: 'doughnut',
 							data: {
 								labels: langLabels,
 								datasets: [{
 									label: 'Horas por lenguaje',
 									data: langData,
-									backgroundColor: [
-										'rgba(255, 99, 132, 0.6)',
-										'rgba(54, 162, 235, 0.6)',
-										'rgba(255, 206, 86, 0.6)',
-										'rgba(75, 192, 192, 0.6)',
-										'rgba(153, 102, 255, 0.6)',
-										'rgba(255, 159, 64, 0.6)',
-										'rgba(255, 99, 132, 0.6)',
-										'rgba(54, 162, 235, 0.6)',
-										'rgba(255, 206, 86, 0.6)',
-										'rgba(75, 192, 192, 0.6)'
-									]
+									backgroundColor: langColors,
+									borderColor: 'rgba(255, 255, 255, 0.5)',
+									borderWidth: 1,
+									hoverOffset: 15
 								}]
 							},
 							options: {
 								responsive: true,
-								maintainAspectRatio: false
+								maintainAspectRatio: false,
+								plugins: {
+									legend: {
+										position: 'right',
+										labels: {
+											boxWidth: 15,
+											padding: 15
+										}
+									},
+									tooltip: {
+										callbacks: {
+											label: function(context) {
+												const value = context.parsed;
+												const total = context.dataset.data.reduce((a, b) => a + b, 0);
+												const percentage = Math.round((value / total) * 100);
+												return \`\${context.label}: \${value.toFixed(1)} horas (\${percentage}%)\`;
+											}
+										}
+									}
+								},
+								cutout: '60%'
 							}
 						});
 						
@@ -467,13 +620,16 @@ export function activate(context: vscode.ExtensionContext) {
 								const row = recentActivityTable.insertRow();
 								
 								const dateCell = row.insertCell(0);
-								dateCell.textContent = session.date;
+								dateCell.textContent = formatDate(session.date);
 								
 								const durationCell = row.insertCell(1);
 								durationCell.textContent = formatTime(session.duration);
 								
 								const langCell = row.insertCell(2);
-								langCell.textContent = session.language;
+								const langBadge = document.createElement('span');
+								langBadge.className = 'language-badge';
+								langBadge.textContent = session.language;
+								langCell.appendChild(langBadge);
 								
 								const projectCell = row.insertCell(3);
 								projectCell.textContent = session.project;
