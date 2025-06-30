@@ -7,7 +7,7 @@
 
 OpenCodeTime es una extensión gratuita y open source para Visual Studio Code que realiza un seguimiento del tiempo que dedicas a programar, ofreciendo un dashboard local con estadísticas detalladas.
 
-![Dashboard Preview](resources/screenshots/dashboard.png)
+<!-- La imagen del dashboard se mostrará cuando la extensión esté publicada en el repositorio -->
 
 ## Características
 
