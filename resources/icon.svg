@@ -2,27 +2,15 @@
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#3498db" />
-      <stop offset="100%" stop-color="#9b59b6" />
+      <stop offset="100%" stop-color="#2980b9" />
     </linearGradient>
   </defs>
-  <circle cx="64" cy="64" r="60" fill="url(#gradient)" />
-  <circle cx="64" cy="64" r="50" fill="#f8f9fa" stroke="#3498db" stroke-width="2" />
+  <rect x="10" y="10" width="108" height="108" rx="10" fill="url(#gradient)" />
   <g transform="translate(64, 64)">
-    <!-- Manecillas del reloj -->
-    <line x1="0" y1="0" x2="0" y2="-30" stroke="#333" stroke-width="4" stroke-linecap="round" />
-    <line x1="0" y1="0" x2="20" y2="0" stroke="#333" stroke-width="4" stroke-linecap="round" />
-    <circle cx="0" cy="0" r="4" fill="#333" />
-  </g>
-  <!-- Marcas de hora -->
-  <g transform="translate(64, 64)">
-    <line x1="0" y1="-40" x2="0" y2="-46" stroke="#333" stroke-width="3" />
-    <line x1="40" y1="0" x2="46" y2="0" stroke="#333" stroke-width="3" />
-    <line x1="0" y1="40" x2="0" y2="46" stroke="#333" stroke-width="3" />
-    <line x1="-40" y1="0" x2="-46" y2="0" stroke="#333" stroke-width="3" />
-  </g>
-  <!-- Código en texto -->
-  <g transform="translate(64, 92)">
-    <rect x="-30" y="-8" width="60" height="16" rx="4" fill="#3498db" />
-    <text x="0" y="4" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="12" text-anchor="middle" fill="#fff">CODE</text>
+    <!-- Reloj simplificado -->
+    <circle cx="0" cy="0" r="36" fill="none" stroke="#ffffff" stroke-width="5" />
+    <line x1="0" y1="0" x2="0" y2="-20" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+    <line x1="0" y1="0" x2="15" y2="0" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+    <circle cx="0" cy="0" r="3" fill="#ffffff" />
   </g>
 </svg> 
