@@ -71,6 +71,7 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
             <title>OpenCodeTime Dashboard</title>
             <style>
                 :root {
+                    /* Variables para tema oscuro (default) */
                     --card-bg: #2d2d2d;
                     --card-border: #3d3d3d;
                     --chart-grid: #3d3d3d;
@@ -78,15 +79,93 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                     --text-secondary: #a0a0a0;
                     --accent-color: #4cc9f0;
                     --hover-bg: #3a3a3a;
+                    --background-color: var(--vscode-editor-background);
+                    --header-border: #3d3d3d;
+                    --switch-bg: #3d3d3d;
+                    --switch-circle: #e0e0e0;
+                }
+                
+                /* Tema claro */
+                [data-theme="light"] {
+                    --card-bg: #ffffff;
+                    --card-border: #e0e0e0;
+                    --chart-grid: #e0e0e0;
+                    --text-primary: #333333;
+                    --text-secondary: #666666;
+                    --accent-color: #0078d4;
+                    --hover-bg: #f5f5f5;
+                    --background-color: #f9f9f9;
+                    --header-border: #e0e0e0;
+                    --switch-bg: #0078d4;
+                    --switch-circle: #ffffff;
                 }
                 
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
                     padding: 0 20px;
                     color: var(--text-primary);
-                    background-color: var(--vscode-editor-background);
+                    background-color: var(--background-color);
                     line-height: 1.5;
+                    transition: background-color 0.3s ease, color 0.3s ease;
                 }
+                
+                /* Switch de tema */
+                .theme-switch-wrapper {
+                    display: flex;
+                    align-items: center;
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                }
+                
+                .theme-switch {
+                    display: inline-block;
+                    height: 24px;
+                    position: relative;
+                    width: 48px;
+                }
+                
+                .theme-switch input {
+                    display: none;
+                }
+                
+                .slider {
+                    background-color: var(--switch-bg);
+                    bottom: 0;
+                    cursor: pointer;
+                    left: 0;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    transition: .4s;
+                    border-radius: 34px;
+                }
+                
+                .slider:before {
+                    background-color: var(--switch-circle);
+                    bottom: 4px;
+                    content: "";
+                    height: 16px;
+                    left: 4px;
+                    position: absolute;
+                    transition: .4s;
+                    width: 16px;
+                    border-radius: 50%;
+                }
+                
+                input:checked + .slider {
+                    background-color: var(--accent-color);
+                }
+                
+                input:checked + .slider:before {
+                    transform: translateX(24px);
+                }
+                
+                .theme-icon {
+                    margin-right: 8px;
+                    font-size: 16px;
+                }
+                
                 .container {
                     max-width: 1000px;
                     margin: 0 auto;
@@ -95,7 +174,8 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                     text-align: center;
                     margin-bottom: 2rem;
                     padding: 1.5rem;
-                    border-bottom: 1px solid var(--card-border);
+                    border-bottom: 1px solid var(--header-border);
+                    position: relative;
                 }
                 .header h1 {
                     margin: 0;
@@ -147,10 +227,9 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                 h2 {
                     color: var(--text-primary);
                     margin-top: 0;
-                    margin-bottom: 1.2rem;
+                    margin-bottom: 0;
                     font-size: 1.3rem;
-                    border-bottom: 1px solid var(--card-border);
-                    padding-bottom: 0.5rem;
+                    padding-bottom: 0;
                 }
                 .stat-value {
                     font-size: 2.2rem;
@@ -269,12 +348,101 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                 .no-data p {
                     margin-bottom: 2rem;
                 }
+                
+                /* Estilos para tarjetas mejoradas */
+                .filter-container {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 1.5rem;
+                    flex-wrap: wrap;
+                }
+                
+                .filter-button {
+                    background-color: var(--card-bg);
+                    color: var(--text-secondary);
+                    border: 1px solid var(--card-border);
+                    padding: 6px 14px;
+                    margin: 0 5px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease;
+                }
+                
+                .filter-button:hover {
+                    background-color: var(--hover-bg);
+                }
+                
+                .filter-button.active {
+                    background-color: var(--accent-color);
+                    color: #111;
+                    border-color: var(--accent-color);
+                }
+                
+                /* Estilos para tarjetas mejoradas */
+                .card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.8rem;
+                }
+                
+                .card-title {
+                    margin: 0;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                }
+                
+                .card-icon {
+                    font-size: 1.5rem;
+                    opacity: 0.7;
+                }
+                
+                /* Estilos para tooltips personalizados */
+                .tooltip {
+                    position: relative;
+                    display: inline-block;
+                    cursor: help;
+                }
+                
+                .tooltip .tooltip-text {
+                    visibility: hidden;
+                    width: 200px;
+                    background-color: var(--card-bg);
+                    color: var(--text-primary);
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 8px;
+                    position: absolute;
+                    z-index: 1;
+                    bottom: 125%;
+                    left: 50%;
+                    margin-left: -100px;
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                    font-size: 0.85rem;
+                    border: 1px solid var(--card-border);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                }
+                
+                .tooltip:hover .tooltip-text {
+                    visibility: visible;
+                    opacity: 1;
+                }
             </style>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         </head>
         <body>
             <div class="container">
                 <div class="header">
+                    <div class="theme-switch-wrapper">
+                        <span class="theme-icon">🌙</span>
+                        <label class="theme-switch">
+                            <input type="checkbox" id="theme-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="theme-icon">☀️</span>
+                    </div>
                     <h1>OpenCodeTime Dashboard</h1>
                     <p>Seguimiento de tu tiempo de programación</p>
                 </div>
@@ -294,6 +462,49 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
             <script>
                 const vscode = acquireVsCodeApi();
                 
+                // Gestión del tema
+                const themeToggle = document.getElementById('theme-toggle');
+                
+                // Cargar preferencia de tema guardada
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                if (savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    themeToggle.checked = true;
+                }
+                
+                // Cambiar tema cuando se hace clic en el switch
+                themeToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.documentElement.setAttribute('data-theme', 'light');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                    
+                    // Actualizar colores de los gráficos si existen
+                    updateChartsTheme();
+                });
+                
+                // Función para actualizar los colores de los gráficos según el tema
+                function updateChartsTheme() {
+                    const isDarkTheme = document.documentElement.getAttribute('data-theme') !== 'light';
+                    
+                    // Actualizar configuración de Chart.js
+                    Chart.defaults.color = isDarkTheme ? '#a0a0a0' : '#666666';
+                    Chart.defaults.borderColor = isDarkTheme ? '#3d3d3d' : '#e0e0e0';
+                    
+                    // Actualizar gráficos existentes
+                    const charts = Object.values(Chart.instances || {});
+                    charts.forEach(chart => {
+                        chart.update();
+                    });
+                }
+
+                // Variables para filtrado
+                let allStatsData = [];
+                let currentPeriod = 'all'; // 'all', 'week', 'month', 'year'
+                
                 // Solicitar estadísticas al cargar la página
                 vscode.postMessage({ command: 'getStats' });
                 
@@ -302,9 +513,45 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                     const message = event.data;
                     
                     if (message.command === 'statsData') {
-                        renderDashboard(message.data);
+                        allStatsData = message.data;
+                        filterAndRenderData();
                     }
                 });
+
+                // Función para filtrar datos según el periodo seleccionado
+                function filterAndRenderData() {
+                    if (!allStatsData || allStatsData.length === 0) {
+                        renderNoData();
+                        return;
+                    }
+
+                    let filteredData = [...allStatsData];
+                    
+                    // Filtrar datos según el periodo seleccionado
+                    if (currentPeriod !== 'all') {
+                        const today = new Date();
+                        let cutoffDate = new Date();
+                        
+                        switch (currentPeriod) {
+                            case 'week':
+                                cutoffDate.setDate(today.getDate() - 7);
+                                break;
+                            case 'month':
+                                cutoffDate.setMonth(today.getMonth() - 1);
+                                break;
+                            case 'year':
+                                cutoffDate.setFullYear(today.getFullYear() - 1);
+                                break;
+                        }
+                        
+                        filteredData = filteredData.filter(day => {
+                            const dayDate = new Date(day.date);
+                            return dayDate >= cutoffDate;
+                        });
+                    }
+                    
+                    renderDashboard(filteredData);
+                }
 
                 // Formatear tiempo en milisegundos a formato legible
                 function formatTime(ms) {
@@ -396,47 +643,93 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
 
                     // Construir HTML para el dashboard
                     contentDiv.innerHTML = \`
+                        <div class="filter-container">
+                            <button class="filter-button \${currentPeriod === 'all' ? 'active' : ''}" data-period="all">Todo</button>
+                            <button class="filter-button \${currentPeriod === 'year' ? 'active' : ''}" data-period="year">Último año</button>
+                            <button class="filter-button \${currentPeriod === 'month' ? 'active' : ''}" data-period="month">Último mes</button>
+                            <button class="filter-button \${currentPeriod === 'week' ? 'active' : ''}" data-period="week">Última semana</button>
+                        </div>
+
                         <div class="stats-grid">
                             <div class="card">
-                                <div class="stat-icon">⏱️</div>
-                                <div class="stat-label">Tiempo total</div>
-                                <div class="stat-value" id="total-time">\${formatTime(totalTime)}</div>
-                                <div class="stat-trend">Toda la historia</div>
+                                <div class="card-header">
+                                    <div>
+                                        <div class="stat-label">Tiempo total</div>
+                                        <div class="stat-value" id="total-time">\${formatTime(totalTime)}</div>
+                                    </div>
+                                    <div class="card-icon tooltip">⏱️
+                                        <span class="tooltip-text">Tiempo total de codificación en el periodo seleccionado</span>
+                                    </div>
+                                </div>
+                                <div class="stat-trend">Periodo seleccionado</div>
                             </div>
                             <div class="card">
-                                <div class="stat-icon">📅</div>
-                                <div class="stat-label">Tiempo hoy</div>
-                                <div class="stat-value" id="today-time">\${formatTime(todayTime)}</div>
+                                <div class="card-header">
+                                    <div>
+                                        <div class="stat-label">Tiempo hoy</div>
+                                        <div class="stat-value" id="today-time">\${formatTime(todayTime)}</div>
+                                    </div>
+                                    <div class="card-icon tooltip">📅
+                                        <span class="tooltip-text">Tiempo de codificación del día de hoy</span>
+                                    </div>
+                                </div>
                                 <div class="stat-trend" id="today-date">\${formatDate(today)}</div>
                             </div>
                             <div class="card">
-                                <div class="stat-icon">📊</div>
-                                <div class="stat-label">Promedio diario</div>
-                                <div class="stat-value" id="avg-time">\${formatTime(avgTime)}</div>
+                                <div class="card-header">
+                                    <div>
+                                        <div class="stat-label">Promedio diario</div>
+                                        <div class="stat-value" id="avg-time">\${formatTime(avgTime)}</div>
+                                    </div>
+                                    <div class="card-icon tooltip">📊
+                                        <span class="tooltip-text">Promedio diario de tiempo de codificación</span>
+                                    </div>
+                                </div>
                                 <div class="stat-trend" id="days-tracked">\${stats.length} días registrados</div>
                             </div>
                             <div class="card">
-                                <div class="stat-icon">💻</div>
-                                <div class="stat-label">Lenguaje más usado</div>
-                                <div class="stat-value" id="top-lang">\${topLang}</div>
+                                <div class="card-header">
+                                    <div>
+                                        <div class="stat-label">Lenguaje más usado</div>
+                                        <div class="stat-value" id="top-lang">\${topLang}</div>
+                                    </div>
+                                    <div class="card-icon tooltip">💻
+                                        <span class="tooltip-text">Lenguaje en el que has pasado más tiempo</span>
+                                    </div>
+                                </div>
                                 <div class="stat-trend" id="top-lang-time">\${formatHoursAndMinutes(topTime)}</div>
                             </div>
                         </div>
                         
                         <div class="card chart-container">
-                            <h2>Tiempo de codificación por día</h2>
+                            <div class="card-header">
+                                <h2>Tiempo de codificación por día</h2>
+                                <div class="tooltip">ℹ️
+                                    <span class="tooltip-text">Muestra las horas dedicadas a programar cada día</span>
+                                </div>
+                            </div>
                             <canvas id="daily-chart"></canvas>
                         </div>
                         
                         <div class="card chart-container language-chart-container">
-                            <h2>Desglose por lenguaje</h2>
+                            <div class="card-header">
+                                <h2>Desglose por lenguaje</h2>
+                                <div class="tooltip">ℹ️
+                                    <span class="tooltip-text">Distribución del tiempo por lenguaje de programación</span>
+                                </div>
+                            </div>
                             <div style="position: relative; height: 340px;">
                                 <canvas id="lang-chart"></canvas>
                             </div>
                         </div>
                         
                         <div class="card">
-                            <h2>Actividad reciente</h2>
+                            <div class="card-header">
+                                <h2>Actividad reciente</h2>
+                                <div class="tooltip">ℹ️
+                                    <span class="tooltip-text">Últimas sesiones de codificación registradas</span>
+                                </div>
+                            </div>
                             <table id="recent-activity">
                                 <thead>
                                     <tr>
@@ -456,7 +749,22 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                             <button class="btn btn-outline" onclick="exportStats()">Exportar datos</button>
                             <button class="btn" onclick="location.reload()">Refrescar</button>
                         </div>
+                        
+                        <div class="footer-info" style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-secondary);">
+                            <p>Selecciona un periodo de tiempo para filtrar los datos o cambia entre tema claro y oscuro con el interruptor en la parte superior.</p>
+                        </div>
                     \`;
+                    
+                    // Añadir manejadores de eventos para los botones de filtro
+                    document.querySelectorAll('.filter-button').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const period = this.getAttribute('data-period');
+                            if (period !== currentPeriod) {
+                                currentPeriod = period;
+                                filterAndRenderData();
+                            }
+                        });
+                    });
                     
                     // Preparar datos para gráficos
                     const sortedDays = [...stats].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -485,10 +793,14 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                             datasets: [{
                                 label: 'Horas de codificación',
                                 data: durations.map(d => d.totalHours),
-                                backgroundColor: 'rgba(76, 201, 240, 0.6)',
-                                borderColor: 'rgba(76, 201, 240, 1)',
+                                backgroundColor: document.documentElement.getAttribute('data-theme') === 'light' 
+                                    ? 'rgba(0, 120, 212, 0.6)' 
+                                    : 'rgba(76, 201, 240, 0.6)',
+                                borderColor: document.documentElement.getAttribute('data-theme') === 'light' 
+                                    ? 'rgba(0, 120, 212, 1)' 
+                                    : 'rgba(76, 201, 240, 1)',
                                 borderWidth: 1,
-                                borderRadius: 4,
+                                borderRadius: 6,
                                 maxBarThickness: 50
                             }]
                         },
