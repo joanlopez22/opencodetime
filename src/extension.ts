@@ -191,10 +191,20 @@ export function activate(context: vscode.ExtensionContext) {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>OpenCodeTime Dashboard</title>
 				<style>
+					:root {
+						--card-bg: #2d2d2d;
+						--card-border: #3d3d3d;
+						--chart-grid: #3d3d3d;
+						--text-primary: #e0e0e0;
+						--text-secondary: #a0a0a0;
+						--accent-color: #4cc9f0;
+						--hover-bg: #3a3a3a;
+					}
+					
 					body {
 						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
 						padding: 0 20px;
-						color: var(--vscode-foreground);
+						color: var(--text-primary);
 						background-color: var(--vscode-editor-background);
 						line-height: 1.5;
 					}
@@ -206,28 +216,29 @@ export function activate(context: vscode.ExtensionContext) {
 						text-align: center;
 						margin-bottom: 2rem;
 						padding: 1.5rem;
-						border-bottom: 1px solid var(--vscode-widget-shadow);
+						border-bottom: 1px solid var(--card-border);
 					}
 					.header h1 {
 						margin: 0;
 						font-size: 2.2rem;
-						color: var(--vscode-textLink-foreground);
+						color: var(--accent-color);
 					}
 					.header p {
 						margin: 0.5rem 0 0;
 						opacity: 0.8;
 					}
 					.card {
-						background-color: var(--vscode-editor-inactiveSelectionBackground);
+						background-color: var(--card-bg);
 						border-radius: 8px;
 						padding: 1.5rem;
 						margin-bottom: 1.5rem;
-						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 						transition: transform 0.2s ease, box-shadow 0.2s ease;
+						border: 1px solid var(--card-border);
 					}
 					.card:hover {
 						transform: translateY(-2px);
-						box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+						box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 					}
 					.stats-grid {
 						display: grid;
@@ -241,22 +252,22 @@ export function activate(context: vscode.ExtensionContext) {
 						position: relative;
 					}
 					h2 {
-						color: var(--vscode-editor-foreground);
+						color: var(--text-primary);
 						margin-top: 0;
 						margin-bottom: 1.2rem;
 						font-size: 1.3rem;
-						border-bottom: 1px solid var(--vscode-widget-shadow);
+						border-bottom: 1px solid var(--card-border);
 						padding-bottom: 0.5rem;
 					}
 					.stat-value {
 						font-size: 2.2rem;
 						font-weight: bold;
-						color: var(--vscode-textLink-foreground);
+						color: var(--accent-color);
 						margin: 0.5rem 0;
 					}
 					.stat-label {
 						font-size: 0.9rem;
-						color: var(--vscode-descriptionForeground);
+						color: var(--text-secondary);
 						text-transform: uppercase;
 						letter-spacing: 0.5px;
 						font-weight: 500;
@@ -268,7 +279,7 @@ export function activate(context: vscode.ExtensionContext) {
 					}
 					.stat-trend {
 						font-size: 0.85rem;
-						color: var(--vscode-descriptionForeground);
+						color: var(--text-secondary);
 						margin-top: 0.5rem;
 					}
 					table {
@@ -277,39 +288,39 @@ export function activate(context: vscode.ExtensionContext) {
 						font-size: 0.95rem;
 					}
 					thead {
-						border-bottom: 2px solid var(--vscode-widget-shadow);
+						border-bottom: 2px solid var(--card-border);
 					}
 					th, td {
 						padding: 12px 8px;
 						text-align: left;
 					}
 					tbody tr {
-						border-bottom: 1px solid var(--vscode-widget-shadow);
+						border-bottom: 1px solid var(--card-border);
 					}
 					tbody tr:hover {
-						background-color: var(--vscode-list-hoverBackground);
+						background-color: var(--hover-bg);
 					}
 					th {
 						font-weight: 600;
-						color: var(--vscode-editor-foreground);
+						color: var(--text-primary);
 					}
 					.language-badge {
 						display: inline-block;
 						padding: 3px 8px;
 						border-radius: 12px;
 						font-size: 0.85rem;
-						background-color: var(--vscode-editor-selectionBackground);
+						background-color: var(--hover-bg);
 					}
 					.footer {
 						text-align: center;
 						padding: 1rem;
 						margin-top: 2rem;
 						font-size: 0.9rem;
-						color: var(--vscode-descriptionForeground);
-						border-top: 1px solid var(--vscode-widget-shadow);
+						color: var(--text-secondary);
+						border-top: 1px solid var(--card-border);
 					}
 					.footer a {
-						color: var(--vscode-textLink-foreground);
+						color: var(--accent-color);
 						text-decoration: none;
 					}
 					.footer a:hover {
@@ -326,8 +337,8 @@ export function activate(context: vscode.ExtensionContext) {
 						margin-right: 1rem;
 					}
 					.chart-tab.active {
-						border-bottom: 2px solid var(--vscode-textLink-foreground);
-						color: var(--vscode-textLink-foreground);
+						border-bottom: 2px solid var(--accent-color);
+						color: var(--accent-color);
 					}
 				</style>
 				<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -422,6 +433,20 @@ export function activate(context: vscode.ExtensionContext) {
 						return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')}\`;
 					}
 
+					// Formatear tiempo en horas y minutos
+					function formatHoursAndMinutes(ms) {
+						const minutes = Math.floor((ms / (1000 * 60)) % 60);
+						const hours = Math.floor(ms / (1000 * 60 * 60));
+						
+						if (hours === 0) {
+							return \`\${minutes} min\`;
+						} else if (minutes === 0) {
+							return \`\${hours} h\`;
+						} else {
+							return \`\${hours} h \${minutes} min\`;
+						}
+					}
+					
 					// Formatear tiempo en horas con un decimal
 					function formatHours(ms) {
 						return (ms / (1000 * 60 * 60)).toFixed(1);
@@ -483,12 +508,25 @@ export function activate(context: vscode.ExtensionContext) {
 						document.getElementById('top-lang').textContent = topLang;
 						document.getElementById('days-tracked').textContent = \`\${stats.length} días registrados\`;
 						document.getElementById('today-date').textContent = formatDate(today);
-						document.getElementById('top-lang-time').textContent = \`\${formatHours(topTime)} horas\`;
+						document.getElementById('top-lang-time').textContent = \`\${formatHoursAndMinutes(topTime)}\`;
 						
 						// Preparar datos para gráficos
 						const sortedDays = [...stats].sort((a, b) => new Date(a.date) - new Date(b.date));
 						const dates = sortedDays.map(day => formatDate(day.date));
-						const durations = sortedDays.map(day => day.totalDuration / (1000 * 60 * 60)); // Convertir a horas
+						const durations = sortedDays.map(day => {
+							const ms = day.totalDuration;
+							const hours = Math.floor(ms / (1000 * 60 * 60));
+							const minutes = Math.floor((ms / (1000 * 60)) % 60);
+							return {
+								hours,
+								minutes,
+								totalHours: ms / (1000 * 60 * 60)
+							};
+						});
+						
+						// Configuración de colores para el tema oscuro
+						Chart.defaults.color = '#a0a0a0';
+						Chart.defaults.borderColor = '#3d3d3d';
 						
 						// Gráfico de tiempo por día
 						const dailyCtx = document.getElementById('daily-chart').getContext('2d');
@@ -498,9 +536,9 @@ export function activate(context: vscode.ExtensionContext) {
 								labels: dates,
 								datasets: [{
 									label: 'Horas de codificación',
-									data: durations,
-									backgroundColor: 'rgba(75, 192, 192, 0.6)',
-									borderColor: 'rgba(75, 192, 192, 1)',
+									data: durations.map(d => d.totalHours),
+									backgroundColor: 'rgba(76, 201, 240, 0.6)',
+									borderColor: 'rgba(76, 201, 240, 1)',
 									borderWidth: 1,
 									borderRadius: 4,
 									maxBarThickness: 50
@@ -514,9 +552,19 @@ export function activate(context: vscode.ExtensionContext) {
 										display: false
 									},
 									tooltip: {
+										backgroundColor: 'rgba(0, 0, 0, 0.8)',
+										titleColor: '#ffffff',
+										bodyColor: '#ffffff',
 										callbacks: {
 											label: function(context) {
-												return \`\${context.parsed.y.toFixed(2)} horas\`;
+												const data = durations[context.dataIndex];
+												if (data.hours === 0) {
+													return \`\${data.minutes} minutos\`;
+												} else if (data.minutes === 0) {
+													return \`\${data.hours} horas\`;
+												} else {
+													return \`\${data.hours} h \${data.minutes} min\`;
+												}
 											}
 										}
 									}
@@ -524,14 +572,29 @@ export function activate(context: vscode.ExtensionContext) {
 								scales: {
 									x: {
 										grid: {
-											display: false
+											display: false,
+											color: 'rgba(255, 255, 255, 0.1)'
+										},
+										ticks: {
+											color: '#a0a0a0'
 										}
 									},
 									y: {
 										beginAtZero: true,
+										grid: {
+											color: 'rgba(255, 255, 255, 0.1)',
+											borderDash: [2, 2]
+										},
+										ticks: {
+											color: '#a0a0a0',
+											callback: function(value) {
+												return value + ' h';
+											}
+										},
 										title: {
 											display: true,
-											text: 'Horas'
+											text: 'Horas',
+											color: '#a0a0a0'
 										}
 									}
 								}
@@ -543,16 +606,16 @@ export function activate(context: vscode.ExtensionContext) {
 						const langData = Object.values(languageStats).map(time => time / (1000 * 60 * 60)); // Convertir a horas
 						
 						const langColors = [
-							'rgba(255, 99, 132, 0.7)',
-							'rgba(54, 162, 235, 0.7)',
-							'rgba(255, 206, 86, 0.7)',
-							'rgba(75, 192, 192, 0.7)',
-							'rgba(153, 102, 255, 0.7)',
-							'rgba(255, 159, 64, 0.7)',
-							'rgba(255, 99, 132, 0.7)',
-							'rgba(54, 162, 235, 0.7)',
-							'rgba(255, 206, 86, 0.7)',
-							'rgba(75, 192, 192, 0.7)'
+							'rgba(76, 201, 240, 0.8)',
+							'rgba(94, 129, 172, 0.8)',
+							'rgba(235, 203, 139, 0.8)',
+							'rgba(163, 190, 140, 0.8)',
+							'rgba(180, 142, 173, 0.8)',
+							'rgba(208, 135, 112, 0.8)',
+							'rgba(129, 161, 193, 0.8)',
+							'rgba(191, 97, 106, 0.8)',
+							'rgba(143, 188, 187, 0.8)',
+							'rgba(235, 203, 139, 0.8)'
 						];
 						
 						const langCtx = document.getElementById('lang-chart').getContext('2d');
@@ -564,7 +627,7 @@ export function activate(context: vscode.ExtensionContext) {
 									label: 'Horas por lenguaje',
 									data: langData,
 									backgroundColor: langColors,
-									borderColor: 'rgba(255, 255, 255, 0.5)',
+									borderColor: 'rgba(0, 0, 0, 0.3)',
 									borderWidth: 1,
 									hoverOffset: 15
 								}]
@@ -577,16 +640,34 @@ export function activate(context: vscode.ExtensionContext) {
 										position: 'right',
 										labels: {
 											boxWidth: 15,
-											padding: 15
+											padding: 15,
+											color: '#a0a0a0'
 										}
 									},
 									tooltip: {
+										backgroundColor: 'rgba(0, 0, 0, 0.8)',
+										titleColor: '#ffffff',
+										bodyColor: '#ffffff',
 										callbacks: {
 											label: function(context) {
 												const value = context.parsed;
 												const total = context.dataset.data.reduce((a, b) => a + b, 0);
 												const percentage = Math.round((value / total) * 100);
-												return \`\${context.label}: \${value.toFixed(1)} horas (\${percentage}%)\`;
+												
+												// Convertir horas a formato horas y minutos
+												const hours = Math.floor(value);
+												const minutes = Math.round((value - hours) * 60);
+												let timeStr;
+												
+												if (hours === 0) {
+													timeStr = \`\${minutes} min\`;
+												} else if (minutes === 0) {
+													timeStr = \`\${hours} h\`;
+												} else {
+													timeStr = \`\${hours} h \${minutes} min\`;
+												}
+												
+												return \`\${context.label}: \${timeStr} (\${percentage}%)\`;
 											}
 										}
 									}
