@@ -134,8 +134,9 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                 .language-chart-container {
                     display: flex;
                     flex-direction: column;
-                    height: 380px; /* Aumentar altura para dar más espacio */
+                    height: 400px; /* Aumentar más la altura para dar más espacio */
                     position: relative; /* Asegurar que el contenedor sea relativo */
+                    overflow: visible; /* Permitir que la leyenda sea visible */
                 }
                 .language-chart-container canvas {
                     max-height: 340px; /* Ensure chart doesn't overflow */
@@ -286,7 +287,7 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                 </div>
 
                 <div class="footer">
-                    <p>OpenCodeTime &copy; 2023 | Desarrollado por <a href="https://github.com/joanlopez22" target="_blank">Joan Lopez Ramirez</a></p>
+                    <p>OpenCodeTime &copy; 2025 | Desarrollado por <a href="https://github.com/joanlopez22" target="_blank">Joan Lopez Ramirez</a></p>
                 </div>
             </div>
             
@@ -429,7 +430,9 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                         
                         <div class="card chart-container language-chart-container">
                             <h2>Desglose por lenguaje</h2>
-                            <canvas id="lang-chart"></canvas>
+                            <div style="position: relative; height: 340px;">
+                                <canvas id="lang-chart"></canvas>
+                            </div>
                         </div>
                         
                         <div class="card">
@@ -568,7 +571,7 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                     
                     const langCtx = document.getElementById('lang-chart').getContext('2d');
                     new Chart(langCtx, {
-                        type: 'pie', // Cambiar a pie chart que maneja mejor el espacio
+                        type: 'doughnut', // Usar doughnut para mejor visualización
                         data: {
                             labels: langLabels,
                             datasets: [{
@@ -577,7 +580,7 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                                 backgroundColor: langColors,
                                 borderColor: 'rgba(0, 0, 0, 0.3)',
                                 borderWidth: 1,
-                                hoverOffset: 15
+                                hoverOffset: 10
                             }]
                         },
                         options: {
@@ -585,38 +588,35 @@ function getDashboardHtml(context: vscode.ExtensionContext): string {
                             maintainAspectRatio: false,
                             layout: {
                                 padding: {
-                                    left: 20,
-                                    right: 140, // Dar más espacio para la leyenda
-                                    top: 10,
-                                    bottom: 10
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    bottom: 0
                                 }
                             },
                             plugins: {
                                 legend: {
-                                    position: 'right',
-                                    align: 'start', // Alinear al inicio para mejor visualización
+                                    display: true,
+                                    position: 'bottom',
+                                    align: 'center',
                                     labels: {
-                                        boxWidth: 15,
-                                        padding: 15,
+                                        boxWidth: 12,
+                                        padding: 10,
                                         color: '#a0a0a0',
                                         font: {
-                                            size: 11 // Reducir tamaño de fuente para leyendas
+                                            size: 10 // Reducir tamaño de fuente para leyendas
                                         },
                                         generateLabels: function(chart) {
                                             // Personalizar las etiquetas para que sean más cortas si es necesario
                                             const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
                                             return original.map(label => {
                                                 // Limitar longitud de etiquetas muy largas
-                                                if (label.text && label.text.length > 15) {
-                                                    label.text = label.text.substring(0, 15) + '...';
+                                                if (label.text && label.text.length > 10) {
+                                                    label.text = label.text.substring(0, 10) + '...';
                                                 }
                                                 return label;
                                             });
                                         }
-                                    },
-                                    maxWidth: 120,
-                                    title: {
-                                        display: false
                                     }
                                 },
                                 tooltip: {

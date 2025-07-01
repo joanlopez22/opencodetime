@@ -57,7 +57,7 @@ Es importante mantener un registro de cambios para que los usuarios sepan qué h
 ```markdown
 # Registro de cambios
 
-## [0.1.0] - 2023-07-01
+## [0.1.0] - 2025-07-01
 ### Añadido
 - Característica 1
 - Característica 2
@@ -66,7 +66,7 @@ Es importante mantener un registro de cambios para que los usuarios sepan qué h
 - Bug 1
 - Bug 2
 
-## [0.0.1] - 2023-06-01
+## [0.0.1] - 2025-06-01
 - Versión inicial
 ```
 
